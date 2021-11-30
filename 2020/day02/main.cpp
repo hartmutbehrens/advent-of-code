@@ -26,9 +26,8 @@ struct PasswordAndPolicy {
 std::vector<PasswordAndPolicy> read_file(const std::string &filename) {
     std::ifstream in{filename};
     // this should make use of RVO
-    std::vector<PasswordAndPolicy> records {std::istream_iterator<PasswordAndPolicy>{in},
-                              std::istream_iterator<PasswordAndPolicy>{}};
-    return records;
+    return {std::istream_iterator<PasswordAndPolicy>{in},
+            std::istream_iterator<PasswordAndPolicy>{}};;
 }
 
 int main() {

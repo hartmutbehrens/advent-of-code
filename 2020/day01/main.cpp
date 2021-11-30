@@ -13,8 +13,7 @@ namespace rng = std::ranges;
 std::vector<int> read_file(const std::string &filename) {
     std::ifstream in{filename};
     // this should make use of RVO
-    std::vector<int> numbers {std::istream_iterator<int>{in},std::istream_iterator<int>{}};
-    return numbers;
+    return {std::istream_iterator<int>{in},std::istream_iterator<int>{}};
 }
 
 int main() {
