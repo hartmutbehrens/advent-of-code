@@ -27,29 +27,25 @@ int main() {
 //    };
 //    auto part1_increases = numbers | rng::views::transform(depth_increased);
 //    std::cout << "increases (part1) = " << std::accumulate(part1_increases.begin(), part1_increases.end(), 0) << "\n";
-    // part 2
-    int index = 0;
     int window_size = 1;
-    auto sliding_depth_increased = [&index, &numbers, &window_size](int depth) {
+    auto sliding_depth_increased = [&numbers, &window_size](int index) -> bool {
         int delta = 0;
         int prev_start = index - window_size;
-        int start = index - (window_size - 1);
         if (index > (window_size - 1)) {
             auto prev_window = rng::views::counted(numbers.begin() + prev_start, window_size);
-            auto window = rng::views::counted(numbers.begin() + start, window_size);
+            auto window = rng::views::counted(numbers.begin() + prev_start + 1, window_size);
             auto prev_depth = std::accumulate(prev_window.begin(), prev_window.end(), 0);
             auto cur_depth = std::accumulate(window.begin(), window.end(), 0);
             delta = cur_depth - prev_depth;
         }
-        index++;
         return delta > 0;
     };
     // part 1 - 1195
-    auto part1_increases = numbers | rng::views::transform(sliding_depth_increased);
+    auto indices = rng::views::iota(0, int(numbers.size()));
+    auto part1_increases = indices | rng::views::transform(sliding_depth_increased);
     std::cout << "increases (part1) = " << std::accumulate(part1_increases.begin(), part1_increases.end(), 0) << "\n";
     // part 2 - 1235
-    index = 0;
     window_size = 3;
-    auto part2_increases = numbers | rng::views::transform(sliding_depth_increased);
+    auto part2_increases = indices | rng::views::transform(sliding_depth_increased);
     std::cout << "increases (part2) = " << std::accumulate(part2_increases.begin(), part2_increases.end(), 0);
 }
