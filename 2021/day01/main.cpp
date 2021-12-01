@@ -18,19 +18,19 @@ std::vector<int> read_file(const std::string &filename) {
 
 int main() {
     std::vector<int> numbers = read_file("input");
-    int current_depth = numbers[0];
-    auto depth_increased = [&current_depth](int new_depth) -> bool {
-        int delta = new_depth - current_depth;
-        current_depth = new_depth;
-        return delta > 0;
-    };
-    // part 1 - 1195
-    auto part1_increases = numbers | rng::views::transform(depth_increased);
-    std::cout << "increases (part1) = " << std::accumulate(part1_increases.begin(), part1_increases.end(), 0) << "\n";
+    // old solution for part 1 - superseded by sliding window algo
+//    int current_depth = numbers[0];
+//    auto depth_increased = [&current_depth](int new_depth) -> bool {
+//        int delta = new_depth - current_depth;
+//        current_depth = new_depth;
+//        return delta > 0;
+//    };
+//    auto part1_increases = numbers | rng::views::transform(depth_increased);
+//    std::cout << "increases (part1) = " << std::accumulate(part1_increases.begin(), part1_increases.end(), 0) << "\n";
     // part 2
     int index = 0;
-    int window_size = 3;
-    auto sliding_depth_increased = [&index, &numbers, window_size](int depth) {
+    int window_size = 1;
+    auto sliding_depth_increased = [&index, &numbers, &window_size](int depth) {
         int delta = 0;
         int prev_start = index - window_size;
         int start = index - (window_size - 1);
@@ -44,7 +44,12 @@ int main() {
         index++;
         return delta > 0;
     };
+    // part 1 - 1195
+    auto part1_increases = numbers | rng::views::transform(sliding_depth_increased);
+    std::cout << "increases (part1) = " << std::accumulate(part1_increases.begin(), part1_increases.end(), 0) << "\n";
     // part 2 - 1235
+    index = 0;
+    window_size = 3;
     auto part2_increases = numbers | rng::views::transform(sliding_depth_increased);
     std::cout << "increases (part2) = " << std::accumulate(part2_increases.begin(), part2_increases.end(), 0);
 }
