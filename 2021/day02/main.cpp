@@ -22,6 +22,7 @@ struct Navigation {
 struct Heading {
     int horizontal = 0;
     int depth = 0;
+    int aim = 0;
 };
 
 [[nodiscard]]
@@ -34,7 +35,7 @@ std::vector<Navigation> read_file(const std::string &filename) {
 int main() {
     std::vector<Navigation> directions = read_file("input");
     Heading heading;
-    auto adjust_heading = [&heading](Navigation n) {
+    auto navigate = [&heading](const Navigation& n) {
         if (n.direction == "forward") {
             heading.horizontal += n.amount;
         } else if (n.direction == "down") {
@@ -43,6 +44,21 @@ int main() {
             heading.depth -= n.amount;
         }
     };
-    rng::for_each(directions, adjust_heading);
+    // part 1 - 1989014
+    rng::for_each(directions, navigate);
     std::cout << "result (part 1) = " << heading.horizontal * heading.depth << "\n";
+    // part 2
+    heading = {.horizontal = 0, .depth = 0};
+    auto navigate_with_aim = [&heading](const Navigation& n) {
+        if (n.direction == "down") {
+            heading.aim += n.amount;
+        } else if (n.direction == "up") {
+            heading.aim -= n.amount;
+        } else if (n.direction == "forward") {
+            heading.horizontal += n.amount;
+            heading.depth += heading.aim * n.amount;
+        }
+    };
+    rng::for_each(directions, navigate_with_aim);
+    std::cout << "result (part 2) = " << heading.horizontal * heading.depth << "\n";
 }
