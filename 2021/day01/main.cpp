@@ -32,11 +32,16 @@ int main() {
         int delta = 0;
         int prev_start = index - window_size;
         if (index > (window_size - 1)) {
-            auto prev_window = rng::views::counted(numbers.begin() + prev_start, window_size);
-            auto window = rng::views::counted(numbers.begin() + prev_start + 1, window_size);
-            auto prev_depth = std::accumulate(prev_window.begin(), prev_window.end(), 0);
-            auto cur_depth = std::accumulate(window.begin(), window.end(), 0);
-            delta = cur_depth - prev_depth;
+            // previous over-engineered solution
+            // auto prev_window = rng::views::counted(numbers.begin() + prev_start, window_size);
+            // auto window = rng::views::counted(numbers.begin() + prev_start + 1, window_size);
+            // auto prev_depth = std::accumulate(prev_window.begin(), prev_window.end(), 0);
+            // auto cur_depth = std::accumulate(window.begin(), window.end(), 0);
+            // delta = cur_depth - prev_depth
+            
+            // someone pointed out that for the sliding window where you compare A+B+C < B+C+D
+            // you can simply reduce this to A < D. Same reasoning for B+C+D < C+D+E, etc.
+            delta = numbers[index] - numbers[prev_start];
         }
         return delta > 0;
     };
