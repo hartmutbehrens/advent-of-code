@@ -38,7 +38,7 @@ int main() {
             // auto prev_depth = std::accumulate(prev_window.begin(), prev_window.end(), 0);
             // auto cur_depth = std::accumulate(window.begin(), window.end(), 0);
             // delta = cur_depth - prev_depth
-            
+
             // someone pointed out that for the sliding window where you compare A+B+C < B+C+D
             // you can simply reduce this to A < D. Same reasoning for B+C+D < C+D+E, etc.
             delta = numbers[index] - numbers[prev_start];
