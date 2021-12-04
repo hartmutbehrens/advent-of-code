@@ -37,7 +37,7 @@ int main() {
     // part 1 = 2035764
     std::cout << "part 1 = " << gamma.to_ulong() * epsilon.to_ulong() << "\n";
 
-    auto get_rating = [](std::vector<std::bitset<12>> bitsets, std::bitset<12> pattern, auto compare) {
+    auto get_rating = [](std::vector<std::bitset<12>> bitsets, auto compare) {
         int bit_pos = 11; // start at MSB
         while (bitsets.size() > 1) {
             int sum_at_pos = 0;
@@ -50,8 +50,8 @@ int main() {
         }
         return bitsets[0];
     };
-    std::bitset<12> oxygen_rating = get_rating(bitsets, gamma, std::not_equal_to<bool>());
-    std::bitset<12> scrubber_rating = get_rating(bitsets, epsilon, std::equal_to<bool>());
+    std::bitset<12> oxygen_rating = get_rating(bitsets, std::not_equal_to<>());
+    std::bitset<12> scrubber_rating = get_rating(bitsets, std::equal_to<>());
     // part 2 - 2817661
     std::cout << "part 2 = " << oxygen_rating.to_ulong() * scrubber_rating.to_ulong() << "\n";
 }
