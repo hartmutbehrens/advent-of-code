@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <numeric>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -62,25 +63,18 @@ int main() {
         }
     };
     auto overlap_count = [](const Vents& vents_map) {
-        int sum = 0;
-        for(const auto &pair: vents_map) {
-            if (pair.second > 1) {
-                ++sum;
-            }
-        }
-        return sum;
+        return std::accumulate(vents_map.begin(), vents_map.end(), 0, [](int sum, const auto& pair){
+            if (pair.second > 1) ++sum;
+            return sum;
+        });
     };
-    Vents simple_vents_map{};
-    for(const auto& line: lines) {
-        plot_vents(simple_vents_map, line);
-    }
+    Vents vents_map{};
+    rng::for_each(lines, [&vents_map, &plot_vents](auto line) { plot_vents(vents_map, line); });
     // part 1 - 5280
-    std::cout << "part 1 overlap = " << overlap_count(simple_vents_map) << "\n";
+    std::cout << "part 1 overlap = " << overlap_count(vents_map) << "\n";
     // part 2 -
     Vents proper_vents_map{};
-    for(const auto& line: lines) {
-        plot_vents(proper_vents_map, line, false);
-    }
+    rng::for_each(lines, [&proper_vents_map, &plot_vents](auto line) { plot_vents(proper_vents_map, line, false); });
     std::cout << "part 2 overlap = " << overlap_count(proper_vents_map) << "\n";
     return 0;
 }

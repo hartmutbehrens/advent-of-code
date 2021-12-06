@@ -43,7 +43,5 @@ int main() {
     }
     // the initial value to std::accumulate determines the return type, so we change it to long long here
     std::cout << "num fish after 80 days = " << std::accumulate(num_fish_per_age.begin(), num_fish_per_age.end(), 0LL) << "\n";
-
-
     return 0;
 }
