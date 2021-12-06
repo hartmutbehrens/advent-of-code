@@ -33,7 +33,6 @@ std::vector<Board> read_boards(const std::string &filename) {
     std::vector<int> board_numbers{std::istream_iterator<int>{in},std::istream_iterator<int>{}};
     int num_boards = board_numbers.size() / 25;
     std::vector<Board> boards(num_boards);
-    std::cout << "num boards = " << num_boards << "\n";
     for (int i = 0; i < board_numbers.size(); ++i) {
         int board_num = int(i / 25);
         int row = int(i / 5) - (5*board_num);
@@ -70,23 +69,18 @@ int main() {
     };
 
     std::vector<int> winning_scores{};
-    std::unordered_map<int, bool> seen_boards;
     // TODO: clean this up with ranges
     for(int n: numbers) {
-        int board_num = 0;
-        for (auto &board: boards) {
-            if (board.contains(n)) {
-                std::get<2>(board[n]) = true;
-            }
-            if (row_or_col_complete(board)) {
-                int score = n * sum_unseen_numbers(board);
-                // score == 0 : board is already complete
-                if ((score > 0) && (!seen_boards.contains(board_num))) {
-                    winning_scores.push_back(n * sum_unseen_numbers(board));
-                    seen_boards[board_num] = true;
+        for (int board_num = 0; board_num < boards.size(); ++board_num) {
+            if (boards[board_num].contains(n)) {
+                std::get<2>(boards[board_num][n]) = true;
+                if (row_or_col_complete(boards[board_num])) {
+                    winning_scores.push_back(n * sum_unseen_numbers(boards[board_num]));
+                    boards.erase(boards.begin() + board_num);
+                    //because we erased an element
+                    --board_num;
                 }
             }
-            ++board_num;
         }
     }
     //part 1 - 23177
