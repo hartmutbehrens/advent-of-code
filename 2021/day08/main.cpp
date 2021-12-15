@@ -5,25 +5,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <unordered_map>
-#include <span>
-
-template<class T, std::size_t N> [[nodiscard]]
-constexpr auto slide(std::span<T,N> s, std::size_t offset, std::size_t width) {
-    return s.subspan(offset, offset + width <= s.size() ? width : 0U);
-}
-
-template<class T, std::size_t N, std::size_t M> [[nodiscard]]
-constexpr bool starts_with(std::span<T,N> data, std::span<T,M> prefix) {
-    return data.size() >= prefix.size()
-           && std::equal(prefix.begin(), prefix.end(), data.begin());
-}
 
 [[nodiscard]]
 constexpr bool contains_all(const std::string& str, const std::string& find) {
     bool contains = true;
     for (auto s: find) {
-        // std::cout << s << "\n";
         contains = contains && str.find(s) != std::string::npos;
     }
     return contains;
@@ -54,23 +40,19 @@ struct Entry {
         }
         is >> discard;
         // 3 is the only number in 2,3,5 that has all segments common with 1
-        auto three = std::find_if(two_three_five.begin(), two_three_five.end(), [&line](const std::string& s) { return contains_all(s, line.numbers[1]); });
-        line.numbers[3] = *three;
-        two_three_five.erase(three);
+        line.numbers[3] = *std::find_if(two_three_five.begin(), two_three_five.end(), [&line](const std::string& s) { return contains_all(s, line.numbers[1]); });
+        std::erase(two_three_five, line.numbers[3]);
         // 9 has all segments common with three
-        auto nine = std::find_if(zero_six_nine.begin(), zero_six_nine.end(), [&line](const std::string& s) { return contains_all(s, line.numbers[3]); });
-        line.numbers[9] = *nine;
-        zero_six_nine.erase(nine);
+        line.numbers[9] = *std::find_if(zero_six_nine.begin(), zero_six_nine.end(), [&line](const std::string& s) { return contains_all(s, line.numbers[3]); });
+        std::erase(zero_six_nine, line.numbers[9]);
         // between zero and six, zero has all segments in common with one
-        auto zero = std::find_if(zero_six_nine.begin(), zero_six_nine.end(), [&line](const std::string& s) { return contains_all(s, line.numbers[1]); });
-        line.numbers[0] = *zero;
-        zero_six_nine.erase(zero);
+        line.numbers[0] = *std::find_if(zero_six_nine.begin(), zero_six_nine.end(), [&line](const std::string& s) { return contains_all(s, line.numbers[1]); });
+        std::erase(zero_six_nine, line.numbers[0]);
         // only six remains
         line.numbers[6] = zero_six_nine[0];
         // five has all numbers in common with 9
-        auto five = std::find_if(two_three_five.begin(), two_three_five.end(), [&line](const std::string& s) { return contains_all(line.numbers[9], s); });
-        line.numbers[5] = *five;
-        two_three_five.erase(five);
+        line.numbers[5] = *std::find_if(two_three_five.begin(), two_three_five.end(), [&line](const std::string& s) { return contains_all(line.numbers[9], s); });
+        std::erase(two_three_five, line.numbers[5]);
         line.numbers[2] = two_three_five[0];
         // get the output
         for (int i=0; i<4; ++i) {
@@ -117,6 +99,6 @@ int main() {
         }
         sum += std::stoi(num);
     }
-    std::cout << "part 1 = " << sum << "\n";;
+    std::cout << "part 2 = " << sum << "\n";;
     return 0;
 }
