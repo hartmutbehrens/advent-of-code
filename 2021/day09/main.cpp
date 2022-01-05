@@ -1,9 +1,8 @@
-#include <array>
 #include <algorithm>
 #include <numeric>
 #include <fstream>
+#include <iterator>
 #include <iostream>
-#include <string>
 #include <vector>
 
 [[nodiscard]]
@@ -17,26 +16,68 @@ std::vector<int> read_file(const std::string &filename) {
     return heights;
 }
 
+int up(const std::vector<int> &heights, int pos, int grid_length = 100) {
+    return pos >= grid_length ? heights[pos - grid_length] : 9;
+}
+
+int down(const std::vector<int> &heights, int pos, int grid_length = 100) {
+    return pos + grid_length >= heights.size() ? 9: heights[pos + grid_length];
+}
+
+int left(const std::vector<int> &heights, int pos, int grid_length = 100) {
+    return pos % grid_length > 0 ? heights[pos - 1] : 9;
+}
+
+int right(const std::vector<int> &heights, int pos, int grid_length = 100) {
+    return pos % grid_length < grid_length - 1 ? heights[pos + 1] : 9;
+}
+
+int which_low(const std::vector<int> &lows, const std::vector<int> &heights, int pos, int grid_length = 100) {
+    auto it = std::find(lows.begin(), lows.end(), pos);
+    if (it != lows.end()) {
+        return it - lows.begin();
+    }
+    if (up(heights, pos) < heights[pos]) {
+        return which_low(lows, heights, pos - grid_length);
+    }
+    if (down(heights, pos) < heights[pos]) {
+        return which_low(lows, heights, pos + grid_length);
+    }
+    if (left(heights, pos) < heights[pos]) {
+        return which_low(lows, heights, pos - 1);
+    }
+    if (right(heights, pos) < heights[pos]) {
+        return which_low(lows, heights, pos + 1);
+    }
+    return 0;
+}
+
 
 int main() {
     auto heights = read_file("input");
-    auto is_lowest = [&heights](int pos, int grid_length = 100) {
-        int col = pos % grid_length;
-        int row = int(pos / grid_length);
-        bool last_row = pos + grid_length > heights.size();
-        int up = row > 0 ? heights[grid_length * (row - 1) + col] : 10;
-        int down = last_row ? 10: heights[grid_length * (row + 1) + col];
-        int left = col > 0 ? heights[pos - 1] : 10;
-        int right = col < grid_length - 1 ? heights[pos + 1] : 10;
-        return (heights[pos] < up) && (heights[pos] < down) && (heights[pos] < left) && (heights[pos] < right);
+    auto is_lowest = [&heights](int p) {
+        return (heights[p] < up(heights, p)) &&
+                (heights[p] < down(heights, p)) &&
+                (heights[p] < left(heights, p)) &&
+                (heights[p] < right(heights, p));
     };
-    std::vector<int> lowest;
+    std::vector<int> lows;
     for(int i=0; i < heights.size(); ++i) {
         if (is_lowest(i)) {
-            lowest.push_back(i);
+            lows.push_back(i);
         }
     }
     // part 1 = 456
-    std::cout << "part 1 = " << std::accumulate(lowest.begin(), lowest.end(), 0, [&heights](int sum, int b) { return sum += (heights[b]+1);}) << "\n";
+    std::cout << "part 1 = " << std::accumulate(lows.begin(), lows.end(), 0, [&heights](int sum, int b) { return sum += (heights[b]+1);}) << "\n";
+    // part 2 - get basin sizes
+    std::vector<int> low_count(lows.size());
+    for(int i=0; i < heights.size(); ++i) {
+        if (heights[i] != 9 ) {
+            low_count[which_low(lows, heights, i)]++;
+        }
+    }
+    std::sort(low_count.rbegin(), low_count.rend());
+    // part 2 - 1047744
+    std::cout << "part 2 = " << low_count[0] * low_count[1] * low_count[2] << "\n";
     return 0;
 }
