@@ -17,11 +17,11 @@ std::vector<int> read_file(const std::string &filename) {
 }
 
 int up(const std::vector<int> &heights, int pos, int grid_length = 100) {
-    return pos >= grid_length ? heights[pos - grid_length] : 9;
+    return pos - grid_length > 0 ? heights[pos - grid_length] : 9;
 }
 
 int down(const std::vector<int> &heights, int pos, int grid_length = 100) {
-    return pos + grid_length >= heights.size() ? 9: heights[pos + grid_length];
+    return pos + grid_length < heights.size() ? heights[pos + grid_length] : 9;
 }
 
 int left(const std::vector<int> &heights, int pos, int grid_length = 100) {
@@ -55,27 +55,28 @@ int which_low(const std::vector<int> &lows, const std::vector<int> &heights, int
 
 int main() {
     auto heights = read_file("input");
-    auto is_lowest = [&heights](int p) {
-        return (heights[p] < up(heights, p)) &&
-                (heights[p] < down(heights, p)) &&
-                (heights[p] < left(heights, p)) &&
-                (heights[p] < right(heights, p));
-    };
+    std::vector<int> positions(heights.size());
+    std::iota(positions.begin(), positions.end(), 0);
     std::vector<int> lows;
-    for(int i=0; i < heights.size(); ++i) {
-        if (is_lowest(i)) {
-            lows.push_back(i);
+    std::for_each(positions.begin(), positions.end(),
+                  [&heights, &lows](int p) {
+        if (heights[p] < up(heights, p) &&
+        (heights[p] < down(heights, p)) &&
+        (heights[p] < left(heights, p)) &&
+        (heights[p] < right(heights, p))) {
+            lows.push_back(p);
         }
-    }
+    });
     // part 1 = 456
     std::cout << "part 1 = " << std::accumulate(lows.begin(), lows.end(), 0, [&heights](int sum, int b) { return sum += (heights[b]+1);}) << "\n";
     // part 2 - get basin sizes
     std::vector<int> low_count(lows.size());
-    for(int i=0; i < heights.size(); ++i) {
-        if (heights[i] != 9 ) {
-            low_count[which_low(lows, heights, i)]++;
+    std::for_each(positions.begin(), positions.end(),
+                  [&heights, &lows, &low_count](int p) {
+        if (heights[p] != 9) {
+            low_count[which_low(lows, heights, p)]++;
         }
-    }
+    });
     std::sort(low_count.rbegin(), low_count.rend());
     // part 2 - 1047744
     std::cout << "part 2 = " << low_count[0] * low_count[1] * low_count[2] << "\n";
