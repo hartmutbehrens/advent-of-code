@@ -62,12 +62,13 @@ int main() {
     std::vector<int> positions(heights.size());
     std::iota(positions.begin(), positions.end(), 0);
     std::vector<int> lows;
-    std::for_each(positions.begin(), positions.end(),
-                  [&heights, &lows](int p) {
-        if (up(heights, p, std::greater<>()) && down(heights, p, std::greater<>()) && left(heights, p, std::greater<>()) && right(heights, p, std::greater<>())) {
-            lows.push_back(p);
-        }
-    });
+    std::copy_if(positions.begin(), positions.end(),
+                  std::back_inserter(lows),
+                  [&heights](int p) { return
+                  up(heights, p, std::greater<>()) &&
+                  down(heights, p, std::greater<>()) &&
+                  left(heights, p, std::greater<>()) &&
+                  right(heights, p, std::greater<>());});
     // part 1 = 456
     std::cout << "part 1 = " << std::accumulate(lows.begin(), lows.end(), 0, [&heights](int sum, int b) { return sum += (heights[b]+1);}) << "\n";
     // part 2 - get basin sizes
