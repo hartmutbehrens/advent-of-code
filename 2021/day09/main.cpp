@@ -16,20 +16,24 @@ std::vector<int> read_file(const std::string &filename) {
     return heights;
 }
 
-int up(const std::vector<int> &heights, int pos, int grid_length = 100) {
-    return pos - grid_length > 0 ? heights[pos - grid_length] : 9;
+int up(const std::vector<int> &heights, int pos, auto cmp, int grid_length = 100) {
+    int value = pos - grid_length > 0 ? heights[pos - grid_length] : 9;
+    return cmp(value, heights[pos]);
 }
 
-int down(const std::vector<int> &heights, int pos, int grid_length = 100) {
-    return pos + grid_length < heights.size() ? heights[pos + grid_length] : 9;
+int down(const std::vector<int> &heights, int pos, auto cmp, int grid_length = 100) {
+    int value = pos + grid_length < heights.size() ? heights[pos + grid_length] : 9;
+    return cmp(value, heights[pos]);
 }
 
-int left(const std::vector<int> &heights, int pos, int grid_length = 100) {
-    return pos % grid_length > 0 ? heights[pos - 1] : 9;
+int left(const std::vector<int> &heights, int pos, auto cmp, int grid_length = 100) {
+    int value = pos % grid_length > 0 ? heights[pos - 1] : 9;
+    return cmp(value, heights[pos]);
 }
 
-int right(const std::vector<int> &heights, int pos, int grid_length = 100) {
-    return pos % grid_length < grid_length - 1 ? heights[pos + 1] : 9;
+int right(const std::vector<int> &heights, int pos, auto cmp, int grid_length = 100) {
+    int value = pos % grid_length < grid_length ? heights[pos + 1] : 9;
+    return cmp(value, heights[pos]);
 }
 
 int which_low(const std::vector<int> &lows, const std::vector<int> &heights, int pos, int grid_length = 100) {
@@ -37,16 +41,16 @@ int which_low(const std::vector<int> &lows, const std::vector<int> &heights, int
     if (it != lows.end()) {
         return it - lows.begin();
     }
-    if (up(heights, pos) < heights[pos]) {
+    if (up(heights, pos, std::less<>())) {
         return which_low(lows, heights, pos - grid_length);
     }
-    if (down(heights, pos) < heights[pos]) {
+    if (down(heights, pos, std::less<>())) {
         return which_low(lows, heights, pos + grid_length);
     }
-    if (left(heights, pos) < heights[pos]) {
+    if (left(heights, pos, std::less<>())) {
         return which_low(lows, heights, pos - 1);
     }
-    if (right(heights, pos) < heights[pos]) {
+    if (right(heights, pos, std::less<>())) {
         return which_low(lows, heights, pos + 1);
     }
     return 0;
@@ -60,10 +64,7 @@ int main() {
     std::vector<int> lows;
     std::for_each(positions.begin(), positions.end(),
                   [&heights, &lows](int p) {
-        if (heights[p] < up(heights, p) &&
-        (heights[p] < down(heights, p)) &&
-        (heights[p] < left(heights, p)) &&
-        (heights[p] < right(heights, p))) {
+        if (up(heights, p, std::greater<>()) && down(heights, p, std::greater<>()) && left(heights, p, std::greater<>()) && right(heights, p, std::greater<>())) {
             lows.push_back(p);
         }
     });
