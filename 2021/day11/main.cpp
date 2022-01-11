@@ -98,8 +98,12 @@ int main() {
     auto energies = read_file("input");
     int flashes = 0;
     print_energies(energies);
-    for (int x=0; x<100; ++x) {
-        flashes += simulate_step(energies);
+    for (int x=0; x<300; ++x) {
+        int flashes_for_step = simulate_step(energies);
+        flashes += flashes_for_step;
+        if (flashes_for_step == 100) {
+            std::cout << "All octopus flash during step " << x + 1 << "\n";
+        }
     }
     print_energies(energies);
     // 1617 flashes
