@@ -1,10 +1,8 @@
-#include <cctype>
 #include <fstream>
 #include <iterator>
 #include <iostream>
 #include <vector>
 #include <regex>
-#include <unordered_map>
 #include <set>
 
 using Coord = std::pair<int, int>;
@@ -73,11 +71,34 @@ void fold(const Fold& fold, std::set<Coord>& dots) {
     }
 }
 
+void display(const std::set<Coord>& dots) {
+    auto with_max_x = std::max_element(dots.begin(), dots.end(), [](Coord a, Coord b) { return a.first < b.first; });
+    auto with_max_y = std::max_element(dots.begin(), dots.end(), [](Coord a, Coord b) { return a.second < b.second; });
+    for (int y=0; y <= with_max_y->second; y++) {
+        for (int x=0; x <= with_max_x->first; x++) {
+            Coord dot{x,y};
+            if (dots.contains(dot)) {
+                std::cout << "*";
+            } else {
+                std::cout << " ";
+            }
+        }
+        std::cout << "\n";
+    }
+}
+
 
 
 int main() {
     auto paper = read_file("input");
     fold(paper.folds[0], paper.dots);
-    std::cout << "number dots = " << paper.dots.size() << "\n";
+    std::cout << "number dots after first fold = " << paper.dots.size() << "\n";
+    // erase the first fold because we've already done it.
+    paper.folds.erase(paper.folds.begin());
+    for (auto f: paper.folds) {
+        fold(f, paper.dots);
+    }
+    std::cout << "\n";
+    display(paper.dots);
     return 0;
 }
